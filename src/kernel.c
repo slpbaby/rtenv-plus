@@ -642,7 +642,7 @@ void show_xxd(int argc, char *argv[])
         }
     }
 
-    lseek(readfd, 0, SEEK_SET);
+    lseek(readfd, 52, SEEK_SET);
     while ((size = read(readfd, &ch, sizeof(ch))) && size != -1) {
         if (ch != -1 && ch != 0x04) { /* has something read */
 
@@ -734,7 +734,7 @@ void show_cat(int argc, char *argv[])
         }
     }
 
-    lseek(readfd, 0, SEEK_SET);
+    lseek(readfd, 52, SEEK_SET);
     while ((size = read(readfd, &ch, sizeof(ch))) && size != -1) {
         if (ch != -1 && ch != 0x04) { /* has something read */
 
