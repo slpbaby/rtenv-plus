@@ -53,6 +53,7 @@ void show_man_page(int argc, char *argv[]);
 void show_history(int argc, char *argv[]);
 void show_xxd(int argc, char *argv[]);
 void show_cat(int argc, char *argv[]);
+void show_ls(int argc, char *argv[]);
 
 /* Enumeration for command types. */
 enum {
@@ -64,6 +65,7 @@ enum {
 	CMD_PS,
 	CMD_XXD,
 	CMD_CAT,
+	CMD_LS,
 	CMD_COUNT
 } CMD_TYPE;
 /* Structure for command handler. */
@@ -81,6 +83,7 @@ const hcmd_entry cmd_data[CMD_COUNT] = {
 	[CMD_PS] = {.cmd = "ps", .func = show_task_info, .description = "List all the processes."},
 	[CMD_XXD] = {.cmd = "xxd", .func = show_xxd, .description = "Make a hexdump."},
 	[CMD_CAT] = {.cmd = "cat", .func = show_cat, .description = "Cat a file"},
+	[CMD_LS] = {.cmd = "ls", .func = show_ls, .description = "List the file and dir"},
 };
 
 /* Structure for environment variables. */
@@ -615,6 +618,15 @@ char char_filter(char c, char fallback)
     return c;
 }
 
+struct romfs_entry {
+    uint32_t parent;
+    uint32_t prev;
+    uint32_t next;
+    uint32_t isdir;
+    uint32_t len;
+    uint8_t name[PATH_MAX];
+};
+
 #define XXD_WIDTH 0x10
 
 //xxd
@@ -727,7 +739,7 @@ void show_cat(int argc, char *argv[])
         readfd = open(argv[1], 0);
 
         if (readfd < 0) { /* Open error */
-            write(fdout, "xxd: ", 6);
+            write(fdout, "cat: ", 6);
             write(fdout, argv[1], strlen(argv[1]) + 1);
             write(fdout, ": No such file or directory\r\n", 31);
             return;
@@ -764,6 +776,43 @@ void show_cat(int argc, char *argv[])
         }
 
         write(fdout, "\r\n", 3);
+    }
+}
+
+void show_ls(int argc, char *argv[]) 
+{
+    int readfd = -1;
+    int size;
+    struct romfs_entry entry;
+
+    if (argc == 1) { /* open current directory */
+        readfd = open("/", 0);
+    }
+    else { /* open file of argv[1] */
+        readfd = open(argv[1], 0);
+
+        if (readfd < 0) { /* Open error */
+            write(fdout, "ls: ", 5);
+            write(fdout, argv[1], strlen(argv[1]) + 1);
+            write(fdout, ": No such directory\r\n", 31);
+            return;
+        }
+    }
+    lseek(readfd, 52, SEEK_SET);
+    
+    char *title = "Type\tName\n\r";
+    write(fdout, title, strlen(title) + 1);
+
+    while ((size = read(readfd, &entry, sizeof(entry))) && size != -1) {
+        if (entry.isdir) 
+	    write(fdout, "dir\t", 5);
+	else
+	    write(fdout, "file\t", 6);
+
+	write(fdout, entry.name, strlen((char *)entry.name) + 1);
+	write(fdout, "\r\n", 3);
+
+	lseek(readfd, entry.len, SEEK_CUR);
     }
 }
 
