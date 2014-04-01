@@ -108,8 +108,8 @@ void romfs_server()
                             mknod(status, 0, S_IFREG);
 	                        files[nfiles].fd = status;
 	                        files[nfiles].device = request.device;
-	                        files[nfiles].start = pos;
-	                        files[nfiles].len = entry.len + sizeof(entry);
+	                        files[nfiles].start = pos + sizeof(entry);
+	                        files[nfiles].len = entry.len;
 	                        nfiles++;
 	                    }
 	                }
