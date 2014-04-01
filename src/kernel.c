@@ -654,7 +654,7 @@ void show_xxd(int argc, char *argv[])
         }
     }
 
-    lseek(readfd, 52, SEEK_SET);
+    lseek(readfd, 0, SEEK_SET);
     while ((size = read(readfd, &ch, sizeof(ch))) && size != -1) {
         if (ch != -1 && ch != 0x04) { /* has something read */
 
@@ -746,7 +746,7 @@ void show_cat(int argc, char *argv[])
         }
     }
 
-    lseek(readfd, 52, SEEK_SET);
+    lseek(readfd, 0, SEEK_SET);
     while ((size = read(readfd, &ch, sizeof(ch))) && size != -1) {
         if (ch != -1 && ch != 0x04) { /* has something read */
 
@@ -786,10 +786,10 @@ void show_ls(int argc, char *argv[])
     struct romfs_entry entry;
 
     if (argc == 1) { /* open current directory */
-        readfd = open("/", 0);
+        readfd = opendir("/");
     }
     else { /* open file of argv[1] */
-        readfd = open(argv[1], 0);
+        readfd = opendir(argv[1]);
 
         if (readfd < 0) { /* Open error */
             write(fdout, "ls: ", 5);
