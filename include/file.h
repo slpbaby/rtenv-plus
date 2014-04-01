@@ -52,6 +52,7 @@ struct file_operations {
 
 int mkfile(const char *pathname, int mode, int dev);
 int open(const char *pathname, int flags);
+int opendir(const char *pathname);
 
 int file_read(struct file *file, struct file_request *request,
               struct event_monitor *monitor);
