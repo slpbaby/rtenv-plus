@@ -61,6 +61,33 @@ void pathserver()
 			    write(replyfd, &newfd, 4);
 		        break;
 
+		    case PATH_CMD_OPENDIR:
+		        read(PATHSERVER_FD, &plen, 4);
+		        read(PATHSERVER_FD, path, plen);
+			
+		        /* Search for mount point */
+			    for (i = 0; i < nmounts; i++) {
+				    if (*mounts[i].path
+				            && strncmp(path, mounts[i].path,
+				                       strlen(mounts[i].path)) == 0) {
+				        int mlen = strlen(mounts[i].path);
+					    struct fs_request request;
+					    request.cmd = FS_CMD_OPENDIR;
+					    request.from = replyfd;
+					    request.device = mounts[i].dev;
+					    request.pos = mlen; /* search starting position */
+					    memcpy(request.path, &path, plen);
+					    write(mounts[i].fs, &request, sizeof(request));
+					    i = 0;
+					    break;
+				    }
+			    }
+
+			    if (i >= nmounts) {
+				    i = -1; /* Error: not found */
+				    write(replyfd, &i, 4);
+			    }
+			break;
 		    case PATH_CMD_OPEN:
 		        read(PATHSERVER_FD, &plen, 4);
 		        read(PATHSERVER_FD, path, plen);
