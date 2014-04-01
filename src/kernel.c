@@ -20,6 +20,7 @@
 #include "romdev.h"
 #include "event-monitor.h"
 #include "romfs.h"
+#include "dirent.h"
 
 #define MAX_CMDNAME 19
 #define MAX_ARGC 19
