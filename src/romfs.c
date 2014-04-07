@@ -37,9 +37,12 @@ struct dirent *romfs_readdir(int dirp)
 	else
 	    dir[i].d_type = 'f';
 	strcpy(dir[i].d_name, (char *)entry.name);
-	dir[i].d_reclen = sizeof(struct dirent);
+	dir[i].d_reclen = entry.len;
 	i++;
+	lseek(dirp, entry.len, SEEK_CUR);
     }
+    while (i < MAX_DIR)
+	dir[i].d_type = 'n';
     return &dir[0];
 }
 
