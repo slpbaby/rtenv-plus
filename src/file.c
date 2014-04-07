@@ -74,6 +74,7 @@ int open(const char *pathname, int flags)
 
 	write(PATHSERVER_FD, buf, pos);
 	read(replyfd, &fd, 4);
+    	lseek(fd, 0, SEEK_SET);
 
 	return fd;
 }
