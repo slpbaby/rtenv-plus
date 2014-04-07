@@ -6,7 +6,7 @@
 #include "fs.h"
 #include "file.h"
 #include "string.h"
-
+#include "dirent.h"
 struct romfs_file {
     int fd;
     int device;
@@ -22,6 +22,26 @@ struct romfs_entry {
     uint32_t len;
     uint8_t name[PATH_MAX];
 };
+
+struct dirent *romfs_readdir(int dirp)
+{
+    static struct dirent dir[MAX_DIR];
+    int size, i;
+    struct romfs_entry entry;
+    i = 0;
+    while ((size = read(dirp, &entry, sizeof(entry))) && size != -1) {
+	if (i > MAX_DIR)
+	    break;
+        if (entry.isdir) 
+	    dir[i].d_type = 'd';
+	else
+	    dir[i].d_type = 'f';
+	strcpy(dir[i].d_name, (char *)entry.name);
+	dir[i].d_reclen = sizeof(struct dirent);
+	i++;
+    }
+    return &dir[0];
+}
 
 int romfs_open_recur(int device, char *path, int this, struct romfs_entry *entry)
 {
