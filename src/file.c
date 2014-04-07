@@ -9,6 +9,8 @@
 #include "block.h"
 #include "regfile.h"
 #include "path.h"
+#include "dirent.h"
+#include "romfs.h"
 
 int mkfile(const char *pathname, int mode, int dev)
 {
@@ -30,6 +32,10 @@ int mkfile(const char *pathname, int mode, int dev)
 	read(replyfd, &status, 4);
 
 	return status;
+}
+
+struct dirent *readdir(int dirp) {
+	return romfs_readdir(dirp);	
 }
 
 int opendir(const char *pathname) {
