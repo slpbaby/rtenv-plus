@@ -789,7 +789,6 @@ void show_ls(int argc, char *argv[])
             return;
         }
     }
-    lseek(readfd, 52, SEEK_SET);
     
     char *title = "Type\tName\n\r";
     write(fdout, title, strlen(title) + 1);

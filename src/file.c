@@ -54,6 +54,7 @@ int opendir(const char *pathname) {
 	write(PATHSERVER_FD, buf, pos);
 	read(replyfd, &fd, 4);
 	
+    	lseek(fd, 52, SEEK_SET);
 	return fd;
 }
 
