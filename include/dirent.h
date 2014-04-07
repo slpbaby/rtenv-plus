@@ -7,4 +7,6 @@ struct dirent {
 	char		d_name[10];
 };
 
+#define MAX_DIR 10
+
 #endif
