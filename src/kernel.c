@@ -20,6 +20,7 @@
 #include "romdev.h"
 #include "event-monitor.h"
 #include "romfs.h"
+#include "file.h"
 #include "dirent.h"
 
 #define MAX_CMDNAME 19
@@ -619,15 +620,6 @@ char char_filter(char c, char fallback)
     return c;
 }
 
-struct romfs_entry {
-    uint32_t parent;
-    uint32_t prev;
-    uint32_t next;
-    uint32_t isdir;
-    uint32_t len;
-    uint8_t name[PATH_MAX];
-};
-
 #define XXD_WIDTH 0x10
 
 //xxd
@@ -783,8 +775,8 @@ void show_cat(int argc, char *argv[])
 void show_ls(int argc, char *argv[]) 
 {
     int readfd = -1;
-    int size;
-    struct romfs_entry entry;
+    int i;
+    struct dirent *dir;
 
     if (argc == 1) { /* open current directory */
         readfd = opendir("/");
@@ -803,17 +795,17 @@ void show_ls(int argc, char *argv[])
     
     char *title = "Type\tName\n\r";
     write(fdout, title, strlen(title) + 1);
-
-    while ((size = read(readfd, &entry, sizeof(entry))) && size != -1) {
-        if (entry.isdir) 
+    i = 0;
+    dir = readdir(readfd);
+    while (i < MAX_DIR && dir[i].d_type != 'n') {
+        if (dir[i].d_type == 'd') 
 	    write(fdout, "dir\t", 5);
 	else
 	    write(fdout, "file\t", 6);
 
-	write(fdout, entry.name, strlen((char *)entry.name) + 1);
+	write(fdout, dir[i].d_name, strlen(dir[i].d_name) + 1);
 	write(fdout, "\r\n", 3);
-
-	lseek(readfd, entry.len, SEEK_CUR);
+	i++;
     }
 }
 
