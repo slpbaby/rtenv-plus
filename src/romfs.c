@@ -41,8 +41,10 @@ struct dirent *romfs_readdir(int dirp)
 	i++;
 	lseek(dirp, entry.len, SEEK_CUR);
     }
-    while (i < MAX_DIR)
+    while (i < MAX_DIR) {
 	dir[i].d_type = 'n';
+	i++;
+    }
     return &dir[0];
 }
 
